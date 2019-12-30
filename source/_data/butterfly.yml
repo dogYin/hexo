@@ -98,7 +98,7 @@ katex:
 
 # Post info settings
 # ---------------
-avatar: /img/avatar.png
+avatar: /img/avatar.jpg
 
 # the banner image of index
 index_img: https://cdn.jsdelivr.net/gh/jerryc127/butterfly_cdn@2.1.0/top_img/index.jpg
@@ -265,13 +265,12 @@ qihu_site_verification:
 
 # 友情鏈接界面設置
 Flink:
-  headline: 友情鏈接
+  headline: 友情链接
   info_headline: 我的Blog資料
-  name: Blog 名字： JerryC
-  address: Blog 地址： https://jerryc.me/
-  avatar: Blog 頭像： https://jerryc.me/img/avatar.png
+  name: Blog 名字： 狗寅子
+  address: Blog 地址： dogyin.wang
   info: Blog 簡介： 今日事,今日畢
-  comment: 如果需要交換友鏈,請留言
+
 
 # 打賞按鈕
 reward:
@@ -348,8 +347,8 @@ canvas_ribbon:
 
 # 動態彩帶
 canvas_ribbon_piao:
-  enable: false
-  mobile: false # false 手機端不顯示 true 手機端顯示
+  enable: true
+  mobile: true # false 手機端不顯示 true 手機端顯示
 
 # canvas_nest
 # https://github.com/hustcc/canvas-nest.js
