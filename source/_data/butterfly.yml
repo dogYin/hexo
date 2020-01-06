@@ -9,11 +9,12 @@ menu:
   时间轴: /archives/ || fa fa-archive
   标签: /tags/ || fa fa-tags
   分类: /categories/ || fa fa-folder-open
+  bug录: /bugs/ || fa fa-folder-open
   友情链接: /link/ || fa fa-link
   关于: /about/ || fa fa-heart
   小狗狗||fa fa-list:
-    - Music || /music/ || fa fa-music
-    - Movie || /movies/ || fa fa-film
+    - 音乐 || /music/ || fa fa-music
+    - 照片 || /Gallery/ || fa fa-picture-o
 
 # Favicon
 # ---------------
@@ -179,8 +180,8 @@ addtoany:
 ####   Comments System    ####
 # ------------------------------------
 disqus:
-  enable: false
-  shortname:
+  enable: true
+  shortname: 寅狗子
   count: false # top_img顯示評論數
 
 laibili:
@@ -216,7 +217,7 @@ valine:
 # ------------------------------------
 since: 2019
 
-footer_custom_text:
+footer_custom_text: Hi,Welcome to my <a href="https://dogyin.wang/">blog</a>!
 
 footer_copyright:
   enable: true
@@ -274,7 +275,7 @@ Flink:
 
 # 打賞按鈕
 reward:
-  enable: true
+  enable: false
   QR_code:
     - itemlist:
         img: /img/wechat.jpg
@@ -475,7 +476,7 @@ busuanzi:
 # 也可以寫成 年/月/日 時間
 runtimeshow:
   enable: true
-  start_date: 6/7/2018 00:00:00
+  start_date: 12/27/2019 00:00:00
 
 ####   右下角按鈕  ####
 #----------------------------------------------
