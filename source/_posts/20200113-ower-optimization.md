@@ -4,19 +4,18 @@ date: 2020-01-13 10:09:54
 tags: 'optimization'
 categories: optimization
 ---
-&nbsp;&nbsp;&nbsp;&nbsp;在之前学习编程过程中，有涉猎并学习过以下知识点，但是并没有更深入的研究；因此在工作间隙，
+　　在之前学习编程过程中，有涉猎并学习过以下知识点，但是并没有更深入的研究；因此在工作间隙，
 将对之前的不足和浅显之处进行更深一步的研究<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;目前正在进行中的优化项目：
 <ul>
-    <li>spring源码解读（30%）</li>
-    <li>mysql底层原理（20%）</li>
+    <li>spring源码解读(40%)</li>
+    <li>mysql底层原理(20%)</li>
+    <li>netty源码解读(20%)</li>
+    <li>zookeeper原理(10%)</li>
 </ul>
-&nbsp;&nbsp;&nbsp;&nbsp;排期中的优化项目：
-<ul>
-    <li>java并发编程进阶</li>
-    <li>netty源码解读</li>
-    <li>springcloud</li>
-    <li>mq优化</li>
-    <li>redis优化</li>
-    <li>实际项目中难点优化</li>    
-</ul>
+<hr/>
+　　 知乎看到一个答案比较好，送给自己共勉：<br/>
+
+通过这次疫情可以看出一个人的人生，生活中总有这么一群人，在疫情的时候总是嚷嚷着，“太无聊了、啥
+也没得干”，然后再平时生活中又呐喊：“哎，有好多事都没做，根本没时间干这干那”。你品
+你细品。。。
