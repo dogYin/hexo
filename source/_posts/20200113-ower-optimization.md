@@ -1,8 +1,10 @@
 ---
 title: 2020年个人优化项
 date: 2020-01-13 10:09:54
-tags: 'optimization'
-categories: optimization
+tags: 
+    - optimization
+categories: 
+    - optimization
 ---
 　　在之前学习编程过程中，有涉猎并学习过以下知识点，但是并没有更深入的研究；因此在工作间隙，
 将对之前的不足和浅显之处进行更深一步的研究<br/>
