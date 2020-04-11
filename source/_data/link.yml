@@ -2,7 +2,10 @@ class:
   class_name: 友情鏈接
   link_list:
     1:
-      name: xxx
-      link: https://blog.xxx.com
-      avatar: https://cdn.xxxxx.top/avatar.png
-      descr: xxxxxxx
+      name: 龙儿的博客
+      link: https://suc-suke.xyz
+      descr: 一只龙
+    2:
+      name: 通儿的博客
+      link: https://me.csdn.net/Lucky666666666666
+      descr: 一只通
