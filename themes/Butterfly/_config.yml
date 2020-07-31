@@ -161,7 +161,7 @@ addThis:
   pubid:
 
 sharejs:
-  enable: true
+  enable: false
   sites: facebook,twitter,wechat,weibo,qq
 
 # https://www.addtoany.com/
@@ -199,10 +199,10 @@ gitalk:
 
 # valine comment system. https://valine.js.org
 valine:
-  enable: false # if you want use valine,please set this value is true
-  appId: # leancloud application app id
-  appKey: # leancloud application app key
-  notify: false # valine mail notify (true/false) https://github.com/xCss/Valine/wiki
+  enable: true # if you want use valine,please set this value is true
+  appId: rjLDfYWwpeh7n3l46Fx64V39-9Nh9j0Va # leancloud application app id
+  appKey: lWS3xE4gbPNjClMV5DoTXbVV # leancloud application app key
+  notify: true # valine mail notify (true/false) https://github.com/xCss/Valine/wiki
   verify: false # valine verify code (true/false)
   pageSize: 10 # comment list page size
   avatar: monsterid # gravatar style https://valine.js.org/#/avatar
@@ -210,7 +210,7 @@ valine:
   placeholder: Please leave your footprints # valine comment input placeholder(like: Please leave your footprints )
   guest_info: nick,mail,link #valine comment header info
   bg: /img/comment_bg.png # valine background
-  count: false # top_img顯示評論數
+  count: true # top_img顯示評論數
 
 #####     Footer Settings    ####
 # ------------------------------------
