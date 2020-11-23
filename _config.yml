@@ -94,7 +94,12 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: Butterfly
+theme: butterfly
+
+#新增插插件
+aplayer:
+  meting: true
+  asset_inject: false
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html

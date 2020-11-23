@@ -1,11 +1,11 @@
-class:
-  class_name: 友情鏈接
-  link_list:
-    1:
-      name: 龙儿的博客
-      link: https://suc-suke.xyz
-      descr: 一只龙
-    2:
-      name: 通儿的博客
-      link: https://me.csdn.net/Lucky666666666666
-      descr: 一只通
+  - class_name: 友情链接
+    class_desc: 那些人，那些事
+    link_list:
+      - name: Richard
+        link: https://me.csdn.net/Lucky666666666666
+        avatar: https://jerryc.me/image/avatar.png
+        descr: 字节音视频开发
+      - name: 龙儿
+        link: https://suc-suke.xyz
+        avatar: https://d33wubrfki0l68.cloudfront.net/6657ba50e702d84afb32fe846bed54fba1a77add/827ae/logo.svg
+        descr: 一个很强大的后端开发
