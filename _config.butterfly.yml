@@ -15,8 +15,8 @@ menu:
   友情链接: /link/ || fa fa-link
   关于: /about/ || fa fa-heart
   小狗狗||fa fa-list:
-    - 音乐 || /music/ || fa fa-music
-    - 照片 || /Gallery/ || fa fa-picture-o
+    - 音乐 || /music/ || fas fa-music
+    - 照片 || /Gallery/ || fas fa-images
 
 # Hide the child menu items in mobile sidebar
 hide_sidebar_menu_child: false
@@ -43,7 +43,7 @@ copy:
 #   icon: link || the description
 social:
   fa fa-github: https://github.com/dogYin
-  fa fa-envelope: mailto:jiabinwang1010@126.com
+  # fa fa-envelope: mailto:jiabinwang1010@126.com
   # fab fa-github: https://github.com/xxxxx || Github
   # fas fa-envelope: mailto:xxxxxx@gmail.com || Email
 
@@ -298,8 +298,8 @@ valine:
   appKey: lWS3xE4gbPNjClMV5DoTXbVV # leancloud application app key
   pageSize: 10 # comment list page size
   avatar: monsterid # gravatar style https://valine.js.org/#/avatar
-  lang: en # i18n: zh-CN/zh-TW/en/ja
-  placeholder: 请指教 # valine comment input placeholder (like: Please leave your footprints)
+  lang: zh-CN # i18n: zh-CN/zh-TW/en/ja
+  placeholder: 若文章有误，麻烦大佬指教！！！ # valine comment input placeholder (like: Please leave your footprints)
   guest_info: 昵称,联系方式,网站链接 # valine comment header info (nick/mail/link)
   recordIP: false # Record reviewer IP
   serverURLs: # This configuration is suitable for domestic custom domain name users, overseas version will be automatically detected (no need to manually fill in)
@@ -687,7 +687,7 @@ newest_comments:
 
 # Conversion between Traditional and Simplified Chinese (簡繁轉換)
 translate:
-  enable: false
+  enable: true
   # The text of a button
   default: 繁
   # the language of website (1 - Traditional Chinese/ 2 - Simplified Chinese）
