@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>寅狗子</title><meta name="author" content="jiabin.wang"><meta name="copyright" content="jiabin.wang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="大米和你缺一不可">
+<meta property="og:type" content="website">
+<meta property="og:title" content="寅狗子">
+<meta property="og:url" content="http://dogyin.wang/index.html">
+<meta property="og:site_name" content="寅狗子">
+<meta property="og:description" content="大米和你缺一不可">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dogyin.wang/img/avatar.jpg">
+<meta property="article:author" content="jiabin.wang">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://dogyin.wang/img/avatar.jpg"><link rel="shortcut icon" href="/img/head.jpg"><link rel="canonical" href="http://dogyin.wang/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2021-04-06 16:06:24'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bugs/"><i class="fa-fw fa fa-folder-open"></i><span> bug录</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 小狗狗</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fa fa-picture-o"></i><span> 照片</span></a></li><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div></div></div><div id="body-wrap"><header class="full_page" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/sky.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">寅狗子</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bugs/"><i class="fa-fw fa fa-folder-open"></i><span> bug录</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 小狗狗</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fa fa-picture-o"></i><span> 照片</span></a></li><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">寅狗子</h1><div id="site-subtitle"><span id="subtitle"></span></div><div id="site_social_icons"><a class="social-icon" href="https://github.com/dogYin" target="_blank" title=""><i class="fa fa-github"></i></a><a class="social-icon" href="mailto:jiabinwang1010@126.com" target="_blank" title=""><i class="fa fa-envelope"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2021/04/06/20210406-test/" title="测试mac中安装hexo">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试mac中安装hexo"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo">测试mac中安装hexo</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-04-06T08:01:56.000Z" title="发表于 2021-04-06 16:01:56">2021-04-06</time></span></div><div class="content">
+这篇文章是为了测试在mac中安装hexo的结果！
+
+</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="分布式ID和编号该怎么做？"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？">分布式ID和编号该怎么做？</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-03-10T13:50:27.000Z" title="发表于 2021-03-10 21:50:27">2021-03-10</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a></span></div><div class="content">　　分布式ID的生成也算是业界老生常谈的话题，Twitter的雪花ID生成算法作为标杆还是很受欢迎的，但是随着国内互联网快速的发展服务部署方式从机器集群到k8s集群部署以及雪花id没有解决时钟回拨问题，雪花ID不是能很好的适配；为此，百度基于雪花id改造开源了适用于k8s集群部署的uid-generator。uid-generator的构成是
+
+
+
+描述
+标记位
+相对时间序列
+workid
+每秒并发序号
+
+
+
+位数
+1
+28
+22
+13
+
+
+其实我们主要考虑两个问题：1.时钟回拨怎么办？ 2.workId怎么配发？我们先看看百度是怎么处理的，通过以下代码我们可以看出来，如果发生时钟回拨的情况会抛出异常给使用者，当然这种生成方式跟普通的雪花id没什么区别只是校验了可能发生的坏味道！
+123456// Clock moved backwards, refuse to generate uid//DefaultUidGenerator if (currentSecond &lt; lastSecond) &#123;     long refusedSeconds = lastSecond  ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="mysql主从复制方案"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案">mysql主从复制方案</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-02-05T09:44:11.000Z" title="发表于 2021-02-05 17:44:11">2021-02-05</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/mysql/">mysql</a></span></div><div class="content">基于binlog的复制源配置
+配置唯一的server_id
+
+开启binlog
+
+创建副本用于复制的用户（拥有Replication slave权限）
+12mysql&gt; CREATE USER &#39;repl&#39;@&#39;%.example.com&#39; IDENTIFIED BY &#39;password&#39;;mysql&gt; GRANT REPLICATION SLAVE ON *.* TO &#39;repl&#39;@&#39;%.example.com&#39;;
+获取binlog坐标
+1234#客户端Amysql&gt; FLUSH TABLES WITH READ LOCK;#客户端Bmysql&gt; SHOW MASTER STATUS
+副本配置
+配置唯一的server_id（该值为0时会阻止副本连接到源）
+
+
+执行复制
+启动副本数据库
+执行以下命令1234567891011121314mysql&gt; CHANGE MASTER TO    -&gt;     MASTER_HOST&#x3D;&#39;source_host_na ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/java.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="垃圾回收随笔"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔">垃圾回收随笔</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2020-12-30T08:12:09.000Z" title="发表于 2020-12-30 16:12:09">2020-12-30</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/jvm/">jvm</a></span></div><div class="content">　　在了解jvm中垃圾回收机制前，应该对其内存空间需要有一定程度的了解；在内存空间描述中，我们知道每个被声明的变量或创建出来的对象都需要容器去承载，这个容器便是之前介绍的内存空间，当然这片空间是从服务器中申请来的，既然其是基于服务器运行的，就不可能无限制的往容器里装东西，但是伴随着程序的运行，又会源源不断的产生对象，显然二者是相矛盾的。针对两个矛盾体“对象会不断产生”，“容器大小有限制”，必须要有应对措施，而我们通常能想到的方案一般有两种：1.增加容器的容量。2.清理无用垃圾。我们所说的垃圾回收机制也是从这两点触发至发散。
+增加容器容量　　怎么理解增加容器容量呢？如果单纯说增加容器容量其实是比较不严谨的说法，目前大部分面向C端的业务都是基于微服务的，微服务意味着将整个业务线通过功能拆分成每个小型服务，部署在多台小型机上，如果一味的增加容量，小型机便会过载，与当初的“微服务”理念背道而驰，所以说不能单纯增加容器容量。　　如果将“增加容器容量”换成“合理调配的容器大小”是不是更应景？在实际业务场景中，有种现象就是当我们服务刚启动时会发生频繁的GC，这是为什么呢？通过GC监控工具发现这种情况 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Reactor模型出现的原因"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因">Reactor模型出现的原因</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2020-12-25T06:09:29.000Z" title="发表于 2020-12-25 14:09:29">2020-12-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/IO/">IO</a></span></div><div class="content">　　在一些高并发场景下，避免不了海量的网络连接，对于传统的网络 IO，通常都是使用一个线程去处理“连接”、“网络读写”、“编解码”、“业务计算”等事件；也就是说线程在处理其中某个事件时，其他事件需处于阻塞状态；当有海量连接进来需要服务器创建同等量级的线程，如此一来对于服务器的吞吐量和 cpu 的利用率将大打折扣；那么，当我们想支持海量连接时应该怎么做？　　或许有人会说服务器和客户端的连接时一对多，那么我们可以扩容、负载及降级；如果是临时流量暴涨，这样处理没什么大的问题；但是，如果流量并不是峰状而是梯状上升，那么就得从底层去解决；试想一下，现在有四个连接事件，对性能影响最大的毫无疑问是“编解码”和“业务计算”这种耗时的事件，我们可以将其交给独立的线程池去异步处理，处理完之后写网络缓冲区使其触发回调；至此，我们有一套方案来解决这些影响连接的耗时操作，称其为基于事件驱动的 Reactor 模型，其中处理接收连接的我们称之为 Acceptor，Reactor 负责分发连接，Handler 负责处理连接　　在上述方案中我们只分离了业务操作，但是当并发量太大时，网络读写也会成为瓶颈，所以进一步我们 ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/12/16/20201216-tcp2/" title="TCP三两事-续集">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="TCP三两事-续集"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/12/16/20201216-tcp2/" title="TCP三两事-续集">TCP三两事-续集</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2020-12-16T07:25:12.000Z" title="发表于 2020-12-16 15:25:12">2020-12-16</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E7%BD%91%E7%BB%9C/">网络</a></span></div><div class="content">快速重传　　通常当一个数据包丢失后，会发生连续重传，重传次数由tcp_retries2参数控制（默认为15）；超时时间（Retransmission TimeOut）RTO进行相关计算，由于上述的过程比较漫长，所以当发送端连续收到3个或以上重复ACK时，会马上进行重传，称之为快速重传。　　我们将一个数据包切分为5段[0,1][1,2][2,3][3,4][4,5]；当第一段[0,1]发出时回复ACK = 1；表示1之前的数据包都收到了，然后[1,2]发生丢包，后续的[2,3][3,4][4,5]正常接收，但是其回复的ACK仍然是2（表示2之前的包都收到了），如果后续收到姗姗来迟的[1,2]时则回复ACK =5（表示5之前的包都收到了）；当发送端连续收到3个2时，就会马上重传
+Q1:快重传示例中[1,2]包为啥回复ACK，其它段数据怎么知道是否到达？A1:TCP头部字段中有个SACK，其中记录的就是[1,2]段后续的连续段区间，比如[2,3]包ACK =1，SACK = [0,1] [2,3]（表示2-3号包都收到了）；[3,4]包ACK =1，SACK = [0,1][2,4]（表示2 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/12/06/20201206-person-summary2/" title="瑞幸一年半复盘">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞幸一年半复盘"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/12/06/20201206-person-summary2/" title="瑞幸一年半复盘">瑞幸一年半复盘</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2020-12-06T02:38:54.000Z" title="发表于 2020-12-06 10:38:54">2020-12-06</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93/">工作总结</a></span></div><div class="content">　　说说这半年做了什么，以及这半年我认识到了什么；　　年初公司动荡，年中人员动荡；不过我这边还是比较稳的，或许有人听了会觉得我装B；稳是因为有准备或者有准备的计划；先不解释心态，说说我在这期间干了什么？
+
+因为人员迭代，有些开发中的需求一时无人接手，所以我被捞去sapi负责独立接手一个开发到一半的系统（前后端分离），负责该项目的开发人员刚离职，离职前还是留了些接口文档；然后就是梳理业务和接口文档的过程，花了几天时间整理完之后，就接上开发了；虽然是个陌生系统，但整理不算复杂，主要问题点在于和前端的磨合，因为前端跟我一样也是半路接手。
+咖啡师系统压单需求独立开发，该需求需要统计门店由于机器还是人力等原因导致订单积压，然后推送给相应岗位人员；该需求需要对接多方系统以及比较复杂的计算过程；整个开发过程比较顺利，测试过程场景比较复杂，需要开发配合，但总体还算顺利
+后期由于公司电商业务的发展，我便被调去营销系统了，因为刚介入该系统，所以前期主要是熟悉系统，做一些简单的活动配置；后期主要做一些优惠券相关的开发，因为当前还在此阶段，且咖啡营销和电商营销系统耦合，以及历史营销数据都在DB导致工作开展比较 ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/12/04/20201204-tcp1/" title="TCP三两事">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="TCP三两事"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/12/04/20201204-tcp1/" title="TCP三两事">TCP三两事</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2020-12-04T05:37:26.000Z" title="发表于 2020-12-04 13:37:26">2020-12-04</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E7%BD%91%E7%BB%9C/">网络</a></span></div><div class="content">TCP头部字段剖析
+四元组　　四元组是由源IP、目标IP、源端口、目标端口；但是在TCP协议包中只能看到源端口和目标端口，这是因为解析IP是网络层做的事，并不是传输层，所以源IP和目标IP会出现在IP包的最后方
+序列号
+序列号是一个32位的无符号整数，达到2^32-1后循环到0
+通过TCP传输的每个字节流都分配了序列号，序列号指的是本报文的第一个字节的序号
+序列号加上报文长度，就可以确定传输的是哪一段数据
+在建立连接之初双方都会随机一个序列号通过SYN报文发送到对端，这个随机序列号称之为初始序列号（ISN）
+初始序列号是由四元组加随机因子通过MD5算法生成
+
+Q1:序列号有什么用？A1:我们知道序列号加报文长度可以唯一确定一段报文，因为报文不一定是按顺序发送，当其乱序到达对端时可以通过序列号拼接完整报文
+Q2:为什么要随机序列号？A2:如果序列号是固定的，那么很容易被猜到后续包的序列号，这样别有用心的人可以伪造一个RST包中断连接
+Q3:序列号既然有长度限制，那么如果发生序列号回绕怎么确定哪段在前面？A3:可以将前后报文序列号做差值运算，转为一个有符号整数，可以通过符号判断哪个在前哪个 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/11/05/20201105-redisext01/" title="redis中的那些阻塞操作">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="redis中的那些阻塞操作"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/11/05/20201105-redisext01/" title="redis中的那些阻塞操作">redis中的那些阻塞操作</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2020-11-05T03:22:22.000Z" title="发表于 2020-11-05 11:22:22">2020-11-05</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/redis/">redis</a></span></div><div class="content">　　十月底在公司redis运维组分享了“影响redis的那些阻塞操作”，这两天正好有空整理下，我们首先看下这张图在上图中我用每个红点标注了redis可能发生阻塞的点，接下来我们将其分为客户端和服务端两组去分析
+客户端阻塞
+keys *   Q：遍历key时间复杂度o(n)，因为从上图我们可以知道命令在服务器上是排队执行的，键数量多是有可能会造成redis阻塞服务端阻塞无法响应其他命令客户端会明显感到停顿 A：可以使用dbsize或者scan命令代替，或者考虑在从库执行该命令；scan命令原理类似数据库的limit
+hgetall Q：当hash元素比较多时，因为要不断的对key进行hash寻址，会存在阻塞redis的可能 A：可替换为hmget或者hscan(渐进式hash原理)
+setbit key offset value Q：该命令是基于Bitmaps数据结构，即二进制位的操作，当offset非常大时整个初始化过程会很慢，早晨redis的阻塞
+flushdb/flushall Q：该命令会将所有数据清除，且当数据库键值对比较多时会对redis早晨阻塞 A：使用rename-com ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/10/30/20201030-ddl/" title="数据库切分原理">     <img class="post_bg" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据库切分原理"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/10/30/20201030-ddl/" title="数据库切分原理">数据库切分原理</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2020-10-30T07:39:18.000Z" title="发表于 2020-10-30 15:39:18">2020-10-30</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">分库分表</a></span></div><div class="content">分库分表简述　　　随着业务不断的增长，一个大型系统在原有简单主从架构基础上，处理海量级的数据就会显得有些吃力；为了缓解单机压力就出现了切分数据库/表的需求，关于如何切分有以下几种定义：
+
+垂直分表定义：将一个表按照字段分成多表，每个表存储其中一部分字段。
+垂直分库定义：是指按照业务将表进行分类，分布到不同的数据库上面，每个库可以放在不同的服务器上，它的核心理念是专库专用。
+水平分表定义：在同一个数据库内，把同一个表的数据按一定规则拆到多个表中。
+水平分库定义：把同一个表的数据按一定规则拆到不同的数据库中，每个库可以放在不同的服务器上。
+
+　　　有了上述的需求，就应该有相应的技术方案实现，目前市面上比较常用的有Apache的ShardingSphere生态以及与应用解耦的Mycat还有阿里未开源的DRDS；ShardingSphere生态中Sharding-jdbc是目前比较受欢迎的解决方案，就单从开源的ShardingSphere和Mycat相比较而言，前者是以组件的形式嵌套在系统中，后者作为三方依赖需要独立部署，如果单从理论上谈性能SharingSphere嵌套在代码中，无需经过网络 ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">jiabin.wang</div><div class="author-info__description">大米和你缺一不可</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/dogYin"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/dogYin" target="_blank" title=""><i class="fa fa-github"></i></a><a class="social-icon" href="mailto:jiabinwang1010@126.com" target="_blank" title=""><i class="fa fa-envelope"></i></a></div></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎指教</div></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试mac中安装hexo"/></a><div class="content"><a class="title" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo">测试mac中安装hexo</a><time datetime="2021-04-06T08:01:56.000Z" title="发表于 2021-04-06 16:01:56">2021-04-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="分布式ID和编号该怎么做？"/></a><div class="content"><a class="title" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？">分布式ID和编号该怎么做？</a><time datetime="2021-03-10T13:50:27.000Z" title="发表于 2021-03-10 21:50:27">2021-03-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="mysql主从复制方案"/></a><div class="content"><a class="title" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案">mysql主从复制方案</a><time datetime="2021-02-05T09:44:11.000Z" title="发表于 2021-02-05 17:44:11">2021-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/java.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="垃圾回收随笔"/></a><div class="content"><a class="title" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔">垃圾回收随笔</a><time datetime="2020-12-30T08:12:09.000Z" title="发表于 2020-12-30 16:12:09">2020-12-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Reactor模型出现的原因"/></a><div class="content"><a class="title" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因">Reactor模型出现的原因</a><time datetime="2020-12-25T06:09:29.000Z" title="发表于 2020-12-25 14:09:29">2020-12-25</time></div></div></div></div></div><div class="card-widget card-categories"><div class="card-content"><div class="item-headline"><i class="fas fa-folder-open"></i><span>分类</span></div><ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/IO/"><span class="card-category-list-name">IO</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/algorithms/"><span class="card-category-list-name">algorithms</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/javase/"><span class="card-category-list-name">javase</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/jvm/"><span class="card-category-list-name">jvm</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/mysql/"><span class="card-category-list-name">mysql</span><span class="card-category-list-count">10</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/mysql/innodb/"><span class="card-category-list-name">innodb</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/mysql/%E7%B4%A2%E5%BC%95/"><span class="card-category-list-name">索引</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/optimization/"><span class="card-category-list-name">optimization</span><span class="card-category-list-count">1</span></a></li>
+            <li class="card-category-list-item more is-center"><a class="card-category-list-link-more" href="/categories/">
+                <span>查看更多</span><i class="fas fa-angle-right"></i></a></li>
+            </ul></div></div><div class="card-widget card-tags"><div class="card-content"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Collection/" style="font-size: 1.1em; color: #999">Collection</a> <a href="/tags/IO/" style="font-size: 1.1em; color: #999">IO</a> <a href="/tags/JUC/" style="font-size: 1.1em; color: #999">JUC</a> <a href="/tags/Reactor/" style="font-size: 1.1em; color: #999">Reactor</a> <a href="/tags/String/" style="font-size: 1.1em; color: #999">String</a> <a href="/tags/TCP/" style="font-size: 1.18em; color: #999ca1">TCP</a> <a href="/tags/algorithms/" style="font-size: 1.1em; color: #999">algorithms</a> <a href="/tags/innodb/" style="font-size: 1.26em; color: #999fa8">innodb</a> <a href="/tags/java/" style="font-size: 1.18em; color: #999ca1">java</a> <a href="/tags/javase/" style="font-size: 1.1em; color: #999">javase</a> <a href="/tags/jvm/" style="font-size: 1.18em; color: #999ca1">jvm</a> <a href="/tags/mysql/" style="font-size: 1.5em; color: #99a9bf">mysql</a> <a href="/tags/optimization/" style="font-size: 1.1em; color: #999">optimization</a> <a href="/tags/redis/" style="font-size: 1.42em; color: #99a6b7">redis</a> <a href="/tags/redo%E6%97%A5%E5%BF%97/" style="font-size: 1.1em; color: #999">redo日志</a> <a href="/tags/socket%E7%BC%96%E7%A8%8B/" style="font-size: 1.1em; color: #999">socket编程</a> <a href="/tags/spring-mysql-%E4%BA%8B%E5%8A%A1-spring-mysql-%E4%BA%8B%E5%8A%A1/" style="font-size: 1.1em; color: #999">spring,mysql,事务 - spring - mysql - 事务</a> <a href="/tags/tddl/" style="font-size: 1.1em; color: #999">tddl</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 1.1em; color: #999">事务</a> <a href="/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/" style="font-size: 1.1em; color: #999">分库分表</a> <a href="/tags/%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93/" style="font-size: 1.34em; color: #99a3b0">工作总结</a> <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" style="font-size: 1.1em; color: #999">并发编程</a> <a href="/tags/%E7%AE%97%E6%B3%95%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">算法数据结构</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" style="font-size: 1.1em; color: #999">系统设计</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 1.1em; color: #999">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7%E8%A1%A8/" style="font-size: 1.1em; color: #999">线性表</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 1.18em; color: #999ca1">网络</a> <a href="/tags/%E8%A1%A8%E7%A9%BA%E9%97%B4/" style="font-size: 1.1em; color: #999">表空间</a> <a href="/tags/%E9%94%81/" style="font-size: 1.1em; color: #999">锁</a> <a href="/tags/%E9%AB%98%E6%95%88%E7%BC%96%E7%A0%81/" style="font-size: 1.1em; color: #999">高效编码</a></div></div></div><div class="card-widget card-archives"><div class="card-content"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/04/"><span class="card-archive-list-date">四月 2021</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/03/"><span class="card-archive-list-date">三月 2021</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/02/"><span class="card-archive-list-date">二月 2021</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/12/"><span class="card-archive-list-date">十二月 2020</span><span class="card-archive-list-count">5</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/11/"><span class="card-archive-list-date">十一月 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/10/"><span class="card-archive-list-date">十月 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/09/"><span class="card-archive-list-date">九月 2020</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/08/"><span class="card-archive-list-date">八月 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item more is-center"><a class="card-archive-list-link-more" href="/archives/">
+              <span>查看更多</span><i class="fas fa-angle-right"  ></i></a></li></ul></div></div><div class="card-widget card-webinfo"><div class="card-content"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">35</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2021-04-06T08:06:23.914Z"></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/sky.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By jiabin.wang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi,Welcome to my <a href="https://dogyin.wang/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    var typed = new Typed("#subtitle", {
+      strings: "为你千千万万遍,For you&#44;a thousand times over".split(","),
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("subtitle").innerHTML = '为你千千万万遍'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.jsdelivr.net/npm/typed.js/lib/typed.min.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script></div></body></html>

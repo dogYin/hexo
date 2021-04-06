@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>mysql中的索引 | 寅狗子</title><meta name="keywords" content="mysql,innodb,索引"><meta name="author" content="jiabin.wang"><meta name="copyright" content="jiabin.wang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="数据查找 在没有索引的情况下查找记录（查询条件为非主键），mysql会从第一个数据页开始遍历，直到找到相应的记录为止，这个过程时间复杂度是o(n),当数据量是亿级时，会非常的损耗性能。 在这里不止是遍历数据页，数据页中还有槽（记录的地址偏移量），因为普通字段没有记录在槽中，所以还要遍历查找，可想而知是有多损耗性能。 因为innodb会给主键建聚簇索引，所以普通查找的时候遍历的是B+树。  索引in">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql中的索引">
+<meta property="og:url" content="http://dogyin.wang/2020/04/01/20200401-mysql02/index.html">
+<meta property="og:site_name" content="寅狗子">
+<meta property="og:description" content="数据查找 在没有索引的情况下查找记录（查询条件为非主键），mysql会从第一个数据页开始遍历，直到找到相应的记录为止，这个过程时间复杂度是o(n),当数据量是亿级时，会非常的损耗性能。 在这里不止是遍历数据页，数据页中还有槽（记录的地址偏移量），因为普通字段没有记录在槽中，所以还要遍历查找，可想而知是有多损耗性能。 因为innodb会给主键建聚簇索引，所以普通查找的时候遍历的是B+树。  索引in">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg">
+<meta property="article:published_time" content="2020-04-01T05:27:52.000Z">
+<meta property="article:modified_time" content="2021-04-06T07:36:20.781Z">
+<meta property="article:author" content="jiabin.wang">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="innodb">
+<meta property="article:tag" content="索引">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg"><link rel="shortcut icon" href="/img/head.jpg"><link rel="canonical" href="http://dogyin.wang/2020/04/01/20200401-mysql02/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-04-06 15:36:20'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bugs/"><i class="fa-fw fa fa-folder-open"></i><span> bug录</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 小狗狗</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fa fa-picture-o"></i><span> 照片</span></a></li><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">寅狗子</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bugs/"><i class="fa-fw fa fa-folder-open"></i><span> bug录</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 小狗狗</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fa fa-picture-o"></i><span> 照片</span></a></li><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">mysql中的索引</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-04-01T05:27:52.000Z" title="发表于 2020-04-01 13:27:52">2020-04-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-04-06T07:36:20.781Z" title="更新于 2021-04-06 15:36:20">2021-04-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/mysql/">mysql</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/mysql/%E7%B4%A2%E5%BC%95/">索引</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="数据查找"><a href="#数据查找" class="headerlink" title="数据查找"></a>数据查找</h1><ol>
+<li>在没有索引的情况下查找记录（查询条件为非主键），mysql会从第一个数据页开始遍历，直到找到相应的记录为止，这个过程时间复杂度是o(n),当数据量是亿级时，会非常的损耗性能。</li>
+<li>在这里不止是遍历数据页，数据页中还有槽（记录的地址偏移量），因为普通字段没有记录在槽中，所以还要遍历查找，可想而知是有多损耗性能。</li>
+<li>因为innodb会给主键建聚簇索引，所以普通查找的时候遍历的是B+树。</li>
+</ol>
+<h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><h2 id="innodb中的索引方案"><a href="#innodb中的索引方案" class="headerlink" title="innodb中的索引方案"></a>innodb中的索引方案</h2><p>我们从第1条记录到第n(+∞)条记录的插入来分析：<br><strong>前提：</strong></p>
+<ol>
+<li>主键自己生成不采用自增主键</li>
+<li>数据储存级别到页，不讨论行级数据储存（航记录可以看之前博客）</li>
+<li>只考虑主键，不考虑其他列索引</li>
+<li>索引树分层讲解，层级倒序，第一层代表最底层</li>
+</ol>
+<h3 id="第一层："><a href="#第一层：" class="headerlink" title="第一层："></a>第一层：</h3><ul>
+<li>当第一条记录进来的时候会分配一个16kb数据页，然后根据主键大小顺序的储存在数据页中。</li>
+<li>如何保证数据的顺序性?<ul>
+<li>我们先假设有x个页，每个页的记录数为y。</li>
+<li>x个页的数据都是顺序存储的，但是第x*y+1条数据主键值小于第x*y-1条数据；如果忽略顺序存储，则该条数据（x*y+1）应该存储在第x+1页的第一条，但是为了保证顺序性会将第x*y+1条数据挪到第x*y-1的位置，x*y-1这条记录会挪到x*y的位置，x*y这条记录会挪到第x+1页的第一条记录；这个“挪位置”的过程称之为<strong>页分裂</strong>；在忽略页的情况下这种数据插入可以跟插入排序类比较</li>
+</ul>
+</li>
+</ul>
+<h3 id="第二层："><a href="#第二层：" class="headerlink" title="第二层："></a>第二层：</h3><ul>
+<li>索引是什么？<ul>
+<li>在我们创建好第一层的基础上将底层每个页中的页码和记录的最小主键值抽象为一条记录，类似于我们要储存的记录但是只有两个列，即储存用户记录数据的页码和每页记录最小主键值然后再分配一个页将该条记录插进去，所有这种页中记录头字段的record_type均为1，称为索引页。</li>
+</ul>
+</li>
+<li>索引页和普通数据页的区别?<ul>
+<li>普通数据页储存用户真实记录，索引页储存数据页页码个最小主键值，其他的都一样。</li>
+<li>当数据量比较大的时候，第二层索引页量级也会同比上升，所以这个时候就会出现第三层，同样是将第二层索引页的页码和最小值封装成记录然后将记录插入分配的数据页中，直到最后只有一个数据页为止。这样就形成了一个B+树</li>
+</ul>
+</li>
+<li>实际上如何插入？<ul>
+<li>前面分析B+树是如何形成的，但是分析思路跟实际操作是相悖的，实际真实数据的插入是从根节点开始的，从第一条记录的诞生开始B+树的根节点就已经确定了，根节点刚开始就是普通的数据页，当数据量大于16kb的时候，会再申请一个数据页将根节点中的数据复制到新申请的数据页中，然后根节点存放新数据页的页码和最小主键值，当数据量增长的时候，数据页会一直分裂，然后直到存储下所有的数据为止。（数据的插入和页分裂思想可以参考二叉树的生成）</li>
+</ul>
+</li>
+</ul>
+<h3 id="索引分类"><a href="#索引分类" class="headerlink" title="索引分类"></a>索引分类</h3><p><strong>聚簇索引：</strong> 拥有顺序储存用户完整记录的叶子节点且拥有顺序储存索引记录的非叶子节点的B+树称为聚簇索引，数据初始化的时候引擎会自动给我们创建一个聚簇索引</p>
+<p><strong>二级索引：</strong>二级索引跟聚簇索引的创建同理，但是二级索引的叶子节点储存的是主键的索引列的值（排序字段是以索引列为主），因为索引列的字段有可能不唯一所以，为了方便排序非叶子节点也会储存主键值，索引列值相同的时候就比较主键值得大小</p>
+<p><strong>联合索引：</strong>当我们创建联合索引的时候会根据我们申明的索引列，进行多列排序，首先会根据最左边的列进行排序，当值相等的时候再根据第二列排序，按照这个规则，当我们使用联合索引去查询记录，如果我们没有按照索引的排序规则查询那么服务器就会遍历索引，我们称之为<strong>左前缀原则</strong></p>
+<h2 id="myisam中的索引方案"><a href="#myisam中的索引方案" class="headerlink" title="myisam中的索引方案"></a>myisam中的索引方案</h2><p>myisam中的索引也是树组成的，但是不同于innodb的是，叶子节点并不储存真实记录而是储存真实记录的主键+行号；<br>真实记录储存在数据文件中，该文件中储存记录是一行行的，可以通过行号访问到一条记录且储存的记录并没有按照主键排序。</p>
+<h2 id="Memory引擎的索引"><a href="#Memory引擎的索引" class="headerlink" title="Memory引擎的索引"></a>Memory引擎的索引</h2><p>我们经常会听到hash索引和B+树索引的区别，但是在日常开发中我们经常会使用的是innodb引擎所以基本不怎么接触到hash索引，</p>
+<ol>
+<li>只有Memory引擎显示支持哈希索引。</li>
+<li>这也是Memory引擎表的默认索引类型，Memory引擎同时也支持B-Tree索引。</li>
+<li>Memory引擎是支持非唯一哈希索引的。</li>
+<li>如果多个列的哈希值相同，索引会以链表的方式存放多个记录指针到同一个哈希条目中</li>
+</ol>
+<h2 id="查询方案"><a href="#查询方案" class="headerlink" title="查询方案"></a>查询方案</h2><p>MySQL执行查询语句的方式称之为访问方法或者访问类型</p>
+<table>
+<thead>
+<tr>
+<th>查询方法</th>
+<th>描述</th>
+<th>拟化复杂度(n为索引值,且常数不能忽略)</th>
+<th>特殊情况</th>
+<th>查询语句</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>const</td>
+<td>通过主键或者唯一二级索引与常数的等值查找</td>
+<td>o(1)</td>
+<td>因为唯一二级索引列并不限制 NULL 值的数量，所以可能访问到多条记录，查询方法不能为const</td>
+<td>select * from table where id/unique_key</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>通过普通二级索引与常数的等值查找</td>
+<td>o(n)</td>
+<td>key IS NULL这种形式的搜索条件最多只能使用ref的访问方法<br/>对于某个包含多个索引列的二级索引来说，只要是最左边的连续索引列是与常数的等值比较就可能采用ref的访问方法</td>
+<td>select * from table where key = value /unique_key is null</td>
+</tr>
+<tr>
+<td>ref_or_null</td>
+<td>通过普通二级索引等值查询，同时还想查询该列的空值记录</td>
+<td>o(3n)</td>
+<td>有空值记录所以记录数要乘2</td>
+<td>select * from table where key = value or key is null</td>
+</tr>
+<tr>
+<td>range</td>
+<td>通过聚簇或二级索引和范围数查找</td>
+<td>o(2n)</td>
+<td>无</td>
+<td>select * from table where key in (val1,val2,val3)</td>
+</tr>
+<tr>
+<td>index</td>
+<td>通过遍历二级索引查找</td>
+<td>o(n^2)</td>
+<td>假设key2和key3是联合索引idx_key2_key3,因为没有左前缀匹配索引会遍历索引树</td>
+<td>select key1_val,key2_val,key3_val from table where key3 = key3_val</td>
+</tr>
+<tr>
+<td>all</td>
+<td>扫描全表查询</td>
+<td>o(n^x)</td>
+<td>这里的x代表量级很大</td>
+<td>select  * from table</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>索引合并</th>
+<th>描述</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Intersection</td>
+<td>1.二级索引列是等值匹配的情况，对于联合索引来说，在联合索引中的每个列都必须等值匹配，不能出现只匹配部分列的情况<br/>2.主键可以是范围匹配</td>
+<td>只有在回表数据量太大的情况下mysql优化器才会进行此次合并</td>
+</tr>
+<tr>
+<td>Union</td>
+<td>1.二级索引列是等值匹配的情况，对于联合索引来说，在联合索引中的每个列都必须等值匹配，不能出现只出现匹配部分列的情况<br/>2.主键列可以是范围匹配<br/>3.使用Intersection索引合并的搜索条件</td>
+<td>查询语句出现or情况下</td>
+</tr>
+<tr>
+<td>Sort-Union</td>
+<td>按照二级索引记录的主键值进行排序，之后按照Union索引合并方式执行</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<h2 id="优化案例分析"><a href="#优化案例分析" class="headerlink" title="优化案例分析"></a>优化案例分析</h2><h3 id="案例1：回表次数判断"><a href="#案例1：回表次数判断" class="headerlink" title="案例1：回表次数判断"></a>案例1：回表次数判断</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> key1= val1 <span class="keyword">and</span> key2 &gt; val2</span><br></pre></td></tr></table></figure>
+<p>如果对索引合并的概念模糊不清的话，也许会说当前操作会回表两次，key1和key2索引树各回一次？<br>答：当前语句只会回表一次，先查找key1索引树匹配到相应id的完整记录，然后再按照条件2过滤掉完整记录。(<strong>索引下推</strong>)</p>
+<h3 id="案例2：索引列和常值匹配索引失效"><a href="#案例2：索引列和常值匹配索引失效" class="headerlink" title="案例2：索引列和常值匹配索引失效"></a>案例2：索引列和常值匹配索引失效</h3><p>哪个索引失效？</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> key1 = val1 <span class="keyword">and</span> common_field = common_field_val</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> key1 = val1 <span class="keyword">or</span> common_field = common_field_val</span><br></pre></td></tr></table></figure>
+<p><strong>Q1：既然我们知道B+树可以直接在页子节点遍历，那样是不是速度很快？</strong><br>A1：我们在上一节说过，底层的叶子节点组成的是一个双向链表，链表有什么特点？对，物理空间不连续，所以我们遍历B+树叶子节点的时候，就是在随机IO,可以想象一下性能如何？<br><strong>Q2：按照A1的回答，那根据主键查范围值是很慢咯？</strong><br>A2:其实不然，具体情况和mysql表空间有直接关系；mysql会申请一块连续空间叫区，区由64个页组成；为了节省空间B+树的叶子节点和非叶子节点是放在不同区中的，将存放叶子节点和非叶子节点的区的集合叫做段。对上述有疑问的话看看第三节的表空间结构可以帮助理解<br><strong>Q3：mysql中的索引树为啥要用B+树？</strong><br>A3：通常与B+树相提并论的是B树，为啥不适用B树呢？<br>首先我们应该了解下B树的特点：多路、每个节点即保存索引也保存数据、搜索相当于二分查找；相比较而言B+树只有叶子节点保存数据，且叶子节点增加了相邻节点的指向指针；至此我们可以知道，B树查找时不用扫描到叶子节点，而B+树需要找到叶子节点，因此B+树更稳定；其次，B+树非叶子节点存放的知识索引，因此可以存放更多数据，使得树深度更小（深度代表的IO次数，深度越大IO次数越多）；所以像其他的二叉搜索树就更不用想了，当数据量级上去之后深度增加，IO次数飙升，性能大幅缩水  </p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">jiabin.wang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://dogyin.wang/2020/04/01/20200401-mysql02/">http://dogyin.wang/2020/04/01/20200401-mysql02/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://dogyin.wang" target="_blank">寅狗子</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mysql/">mysql</a><a class="post-meta__tags" href="/tags/innodb/">innodb</a><a class="post-meta__tags" href="/tags/%E7%B4%A2%E5%BC%95/">索引</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/04/04/20200404-mysql03/"><img class="prev-cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">mysql表空间</div></div></a></div><div class="next-post pull-right"><a href="/2020/03/27/20200327-mysql01/"><img class="next-cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">mysql基础和INNODB引擎结构</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/03/27/20200327-mysql01/" title="mysql基础和INNODB引擎结构"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-03-27</div><div class="title">mysql基础和INNODB引擎结构</div></div></a></div><div><a href="/2020/04/15/20200415-mysql05/" title="innodb缓存池"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-15</div><div class="title">innodb缓存池</div></div></a></div><div><a href="/2020/04/04/20200404-mysql03/" title="mysql表空间"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-04</div><div class="title">mysql表空间</div></div></a></div><div><a href="/2020/04/08/20200408-mysql04/" title="mysql查询优化"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-08</div><div class="title">mysql查询优化</div></div></a></div><div><a href="/2020/04/25/20200421-mysql07/" title="mysql事务"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-25</div><div class="title">mysql事务</div></div></a></div><div><a href="/2020/04/20/20200420-mysql06/" title="mysql中的日志"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-20</div><div class="title">mysql中的日志</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">jiabin.wang</div><div class="author-info__description">大米和你缺一不可</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/dogYin"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/dogYin" target="_blank" title=""><i class="fa fa-github"></i></a><a class="social-icon" href="mailto:jiabinwang1010@126.com" target="_blank" title=""><i class="fa fa-envelope"></i></a></div></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎指教</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%9F%A5%E6%89%BE"><span class="toc-number">1.</span> <span class="toc-text">数据查找</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95"><span class="toc-number">2.</span> <span class="toc-text">索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#innodb%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9%E6%A1%88"><span class="toc-number">2.1.</span> <span class="toc-text">innodb中的索引方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E5%B1%82%EF%BC%9A"><span class="toc-number">2.1.1.</span> <span class="toc-text">第一层：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%EF%BC%9A"><span class="toc-number">2.1.2.</span> <span class="toc-text">第二层：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E5%88%86%E7%B1%BB"><span class="toc-number">2.1.3.</span> <span class="toc-text">索引分类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#myisam%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9%E6%A1%88"><span class="toc-number">2.2.</span> <span class="toc-text">myisam中的索引方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Memory%E5%BC%95%E6%93%8E%E7%9A%84%E7%B4%A2%E5%BC%95"><span class="toc-number">2.3.</span> <span class="toc-text">Memory引擎的索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E6%96%B9%E6%A1%88"><span class="toc-number">2.4.</span> <span class="toc-text">查询方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="toc-number">2.5.</span> <span class="toc-text">优化案例分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B1%EF%BC%9A%E5%9B%9E%E8%A1%A8%E6%AC%A1%E6%95%B0%E5%88%A4%E6%96%AD"><span class="toc-number">2.5.1.</span> <span class="toc-text">案例1：回表次数判断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B2%EF%BC%9A%E7%B4%A2%E5%BC%95%E5%88%97%E5%92%8C%E5%B8%B8%E5%80%BC%E5%8C%B9%E9%85%8D%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88"><span class="toc-number">2.5.2.</span> <span class="toc-text">案例2：索引列和常值匹配索引失效</span></a></li></ol></li></ol></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试mac中安装hexo"/></a><div class="content"><a class="title" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo">测试mac中安装hexo</a><time datetime="2021-04-06T08:01:56.000Z" title="发表于 2021-04-06 16:01:56">2021-04-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="分布式ID和编号该怎么做？"/></a><div class="content"><a class="title" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？">分布式ID和编号该怎么做？</a><time datetime="2021-03-10T13:50:27.000Z" title="发表于 2021-03-10 21:50:27">2021-03-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="mysql主从复制方案"/></a><div class="content"><a class="title" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案">mysql主从复制方案</a><time datetime="2021-02-05T09:44:11.000Z" title="发表于 2021-02-05 17:44:11">2021-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/java.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="垃圾回收随笔"/></a><div class="content"><a class="title" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔">垃圾回收随笔</a><time datetime="2020-12-30T08:12:09.000Z" title="发表于 2020-12-30 16:12:09">2020-12-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Reactor模型出现的原因"/></a><div class="content"><a class="title" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因">Reactor模型出现的原因</a><time datetime="2020-12-25T06:09:29.000Z" title="发表于 2020-12-25 14:09:29">2020-12-25</time></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By jiabin.wang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi,Welcome to my <a href="https://dogyin.wang/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    let initData = {
+      el: '#vcomment',
+      appId: 'rjLDfYWwpeh7n3l46Fx64V39-9Nh9j0Va',
+      appKey: 'lWS3xE4gbPNjClMV5DoTXbVV',
+      placeholder: '若文章有误，麻烦大佬指教！！！',
+      avatar: 'monsterid',
+      meta: '昵称,联系方式,网站链接'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('昵称,联系方式'.split(','))
+    }
+    
+    if (false) {
+      const otherData = false
+      initData = Object.assign({}, initData, otherData)
+    }
+    
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.querySelector('#vcomment'),loadValine)
+  else setTimeout(() => loadValine(), 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script></div></body></html>

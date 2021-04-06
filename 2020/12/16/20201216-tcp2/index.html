@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TCP三两事-续集 | 寅狗子</title><meta name="keywords" content="网络,TCP"><meta name="author" content="jiabin.wang"><meta name="copyright" content="jiabin.wang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="快速重传　　通常当一个数据包丢失后，会发生连续重传，重传次数由tcp_retries2参数控制（默认为15）；超时时间（Retransmission TimeOut）RTO进行相关计算，由于上述的过程比较漫长，所以当发送端连续收到3个或以上重复ACK时，会马上进行重传，称之为快速重传。　　我们将一个数据包切分为5段[0,1][1,2][2,3][3,4][4,5]；当第一段[0,1]发出时回复AC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP三两事-续集">
+<meta property="og:url" content="http://dogyin.wang/2020/12/16/20201216-tcp2/index.html">
+<meta property="og:site_name" content="寅狗子">
+<meta property="og:description" content="快速重传　　通常当一个数据包丢失后，会发生连续重传，重传次数由tcp_retries2参数控制（默认为15）；超时时间（Retransmission TimeOut）RTO进行相关计算，由于上述的过程比较漫长，所以当发送端连续收到3个或以上重复ACK时，会马上进行重传，称之为快速重传。　　我们将一个数据包切分为5段[0,1][1,2][2,3][3,4][4,5]；当第一段[0,1]发出时回复AC">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg">
+<meta property="article:published_time" content="2020-12-16T07:25:12.000Z">
+<meta property="article:modified_time" content="2021-04-06T07:36:20.787Z">
+<meta property="article:author" content="jiabin.wang">
+<meta property="article:tag" content="网络">
+<meta property="article:tag" content="TCP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg"><link rel="shortcut icon" href="/img/head.jpg"><link rel="canonical" href="http://dogyin.wang/2020/12/16/20201216-tcp2/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-04-06 15:36:20'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bugs/"><i class="fa-fw fa fa-folder-open"></i><span> bug录</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 小狗狗</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fa fa-picture-o"></i><span> 照片</span></a></li><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">寅狗子</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bugs/"><i class="fa-fw fa fa-folder-open"></i><span> bug录</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 小狗狗</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fa fa-picture-o"></i><span> 照片</span></a></li><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">TCP三两事-续集</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-16T07:25:12.000Z" title="发表于 2020-12-16 15:25:12">2020-12-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-04-06T07:36:20.787Z" title="更新于 2021-04-06 15:36:20">2021-04-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BD%91%E7%BB%9C/">网络</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="快速重传"><a href="#快速重传" class="headerlink" title="快速重传"></a>快速重传</h1><p>　　通常当一个数据包丢失后，会发生连续重传，重传次数由tcp_retries2参数控制（默认为15）；超时时间（Retransmission TimeOut）RTO进行相关计算，由于上述的过程比较漫长，所以当发送端连续收到3个或以上重复ACK时，会马上进行重传，称之为快速重传。<br>　　我们将一个数据包切分为5段[0,1][1,2][2,3][3,4][4,5]；当第一段[0,1]发出时回复ACK = 1；表示1之前的数据包都收到了，然后[1,2]发生丢包，后续的[2,3][3,4][4,5]正常接收，但是其回复的ACK仍然是2（表示2之前的包都收到了），如果后续收到姗姗来迟的[1,2]时则回复ACK =5（表示5之前的包都收到了）；当发送端连续收到3个2时，就会马上重传</p>
+<p><strong>Q1:快重传示例中[1,2]包为啥回复ACK，其它段数据怎么知道是否到达？</strong><br>A1:TCP头部字段中有个SACK，其中记录的就是[1,2]段后续的连续段区间，比如[2,3]包ACK =1，SACK = [0,1] [2,3]（表示2-3号包都收到了）；[3,4]包ACK =1，SACK = [0,1][2,4]（表示2-4号包都收到了）</p>
+<h1 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h1><p>　　发送端发送数据时首先会将数据放入发送缓冲区，同理接收端会将需要接收的数据先放入接收缓冲区；当接收缓冲区中数据满了之后，数据会被丢弃，这时发送端应该停止继续发送数据。<br>　　TCP的流量控制就是动态的调配发送端和接收端两个缓冲区的大小，我们将发送端的称为发送窗口，接收端的称为接收窗口，接收端在每次回复ACK时会携带当前接收窗口的可用大小，然后发送端根据这个大小动态调整自己发送窗口的大小；我们所说的流量控制一般是在发送端进行控制。<br>　　通常情况下数据被分为一下几种类型<br><strong>发送窗口</strong>：发送端所能发送的最大数据包大小，即包括在途数据包和可发送数据包大小<br><strong>可用窗口</strong>：是即将发送的数据包大小；当可用窗口大小减小到0时，除非接收到ACK否则不会再发送数据<br><img src= "/img/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/silde_win.PNG" alt=""></p>
+<h1 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h1><p><strong>拥塞窗口（cwnd）</strong>：表示发送端在还未收到对端 ACK 之前还能发送的数据量大小，linux中通过initcwnd（默认值10）参数控制初始窗口大小；size(cwnd) = min(size(rwnd),size(cwnd))；</p>
+<h2 id="慢启动"><a href="#慢启动" class="headerlink" title="慢启动"></a>慢启动</h2><p>　　当我们开始发送数据给对端时，不晓得对端的接收能力，如果以最快速的方式传输数据，很可能会因为对端的接收处理能力不足，造成频繁的丢包以及无限制的重传以至最后导致网络雪崩；所以我们使用拥塞窗口限制，开始使用initcwnd大小的窗口发送数据，后续cwnd在不丢包的情况下逐渐增加，这种机制我们成为慢启动<br>　　cwnd的增长模式是每收到一个ACK:cwnd = cwnd+1;每经过一个RTT:cwnd = cwnd * 2</p>
+<h2 id="拥塞避免"><a href="#拥塞避免" class="headerlink" title="拥塞避免"></a>拥塞避免</h2><p>　　如果随着慢启动中cwnd那种模式增长下去，会造成失控，因此需要限制其无限制的增长，通过一个叫做慢启动阈值（ssthresh）控制其增长趋势；<br>　　当cwnd &lt; ssthresh，成指数级增长；<br>　　当cwnd &gt; ssthresh，成线性增长，即每经过一个RTT:cwnd= cwnd+1，无论期间受到多少个ACK</p>
+<h2 id="快速恢复"><a href="#快速恢复" class="headerlink" title="快速恢复"></a>快速恢复</h2><p>当连续收到3个重复ACK时：</p>
+<ul>
+<li>拥塞阈值 ssthresh 降低为 cwnd 的一半：ssthresh = cwnd / 2</li>
+<li>拥塞窗口 cwnd 设置为 ssthresh</li>
+<li>拥塞窗口线性增加</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">jiabin.wang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://dogyin.wang/2020/12/16/20201216-tcp2/">http://dogyin.wang/2020/12/16/20201216-tcp2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://dogyin.wang" target="_blank">寅狗子</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C/">网络</a><a class="post-meta__tags" href="/tags/TCP/">TCP</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/12/25/20201225-io/"><img class="prev-cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Reactor模型出现的原因</div></div></a></div><div class="next-post pull-right"><a href="/2020/12/06/20201206-person-summary2/"><img class="next-cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">瑞幸一年半复盘</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/12/04/20201204-tcp1/" title="TCP三两事"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-04</div><div class="title">TCP三两事</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">jiabin.wang</div><div class="author-info__description">大米和你缺一不可</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/dogYin"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/dogYin" target="_blank" title=""><i class="fa fa-github"></i></a><a class="social-icon" href="mailto:jiabinwang1010@126.com" target="_blank" title=""><i class="fa fa-envelope"></i></a></div></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎指教</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E9%87%8D%E4%BC%A0"><span class="toc-number">1.</span> <span class="toc-text">快速重传</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3"><span class="toc-number">2.</span> <span class="toc-text">滑动窗口</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6"><span class="toc-number">3.</span> <span class="toc-text">拥塞控制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%85%A2%E5%90%AF%E5%8A%A8"><span class="toc-number">3.1.</span> <span class="toc-text">慢启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%A5%E5%A1%9E%E9%81%BF%E5%85%8D"><span class="toc-number">3.2.</span> <span class="toc-text">拥塞避免</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E6%81%A2%E5%A4%8D"><span class="toc-number">3.3.</span> <span class="toc-text">快速恢复</span></a></li></ol></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试mac中安装hexo"/></a><div class="content"><a class="title" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo">测试mac中安装hexo</a><time datetime="2021-04-06T08:01:56.000Z" title="发表于 2021-04-06 16:01:56">2021-04-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="分布式ID和编号该怎么做？"/></a><div class="content"><a class="title" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？">分布式ID和编号该怎么做？</a><time datetime="2021-03-10T13:50:27.000Z" title="发表于 2021-03-10 21:50:27">2021-03-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="mysql主从复制方案"/></a><div class="content"><a class="title" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案">mysql主从复制方案</a><time datetime="2021-02-05T09:44:11.000Z" title="发表于 2021-02-05 17:44:11">2021-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/java.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="垃圾回收随笔"/></a><div class="content"><a class="title" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔">垃圾回收随笔</a><time datetime="2020-12-30T08:12:09.000Z" title="发表于 2020-12-30 16:12:09">2020-12-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Reactor模型出现的原因"/></a><div class="content"><a class="title" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因">Reactor模型出现的原因</a><time datetime="2020-12-25T06:09:29.000Z" title="发表于 2020-12-25 14:09:29">2020-12-25</time></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By jiabin.wang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi,Welcome to my <a href="https://dogyin.wang/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    let initData = {
+      el: '#vcomment',
+      appId: 'rjLDfYWwpeh7n3l46Fx64V39-9Nh9j0Va',
+      appKey: 'lWS3xE4gbPNjClMV5DoTXbVV',
+      placeholder: '若文章有误，麻烦大佬指教！！！',
+      avatar: 'monsterid',
+      meta: '昵称,联系方式,网站链接'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('昵称,联系方式'.split(','))
+    }
+    
+    if (false) {
+      const otherData = false
+      initData = Object.assign({}, initData, otherData)
+    }
+    
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.querySelector('#vcomment'),loadValine)
+  else setTimeout(() => loadValine(), 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script></div></body></html>

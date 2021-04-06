@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>redis主从复制 | 寅狗子</title><meta name="keywords" content="redis"><meta name="author" content="jiabin.wang"><meta name="copyright" content="jiabin.wang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="主从复制  1.复制概述   redis主从复制新旧版本过程图，如上所示旧版本的初始复制和断线后复制都是全量复制，上图的复制过程已经一目了然，在这里文字叙述下新版本的复制PSYNC命令触发的主节点响应有三种：  +FULLRESYNC +CONTINUE -ERR  重点记录下+CONTINUE响应关键字,在了解之前首先需要了解几个概念  复制偏移量（offset）： 主服务器向从服务器传送N个字">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis主从复制">
+<meta property="og:url" content="http://dogyin.wang/2020/06/20/20200620-redis04/index.html">
+<meta property="og:site_name" content="寅狗子">
+<meta property="og:description" content="主从复制  1.复制概述   redis主从复制新旧版本过程图，如上所示旧版本的初始复制和断线后复制都是全量复制，上图的复制过程已经一目了然，在这里文字叙述下新版本的复制PSYNC命令触发的主节点响应有三种：  +FULLRESYNC +CONTINUE -ERR  重点记录下+CONTINUE响应关键字,在了解之前首先需要了解几个概念  复制偏移量（offset）： 主服务器向从服务器传送N个字">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg">
+<meta property="article:published_time" content="2020-06-20T01:42:59.000Z">
+<meta property="article:modified_time" content="2021-04-06T07:36:20.784Z">
+<meta property="article:author" content="jiabin.wang">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg"><link rel="shortcut icon" href="/img/head.jpg"><link rel="canonical" href="http://dogyin.wang/2020/06/20/20200620-redis04/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-04-06 15:36:20'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bugs/"><i class="fa-fw fa fa-folder-open"></i><span> bug录</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 小狗狗</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fa fa-picture-o"></i><span> 照片</span></a></li><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">寅狗子</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bugs/"><i class="fa-fw fa fa-folder-open"></i><span> bug录</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 小狗狗</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fa fa-picture-o"></i><span> 照片</span></a></li><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">redis主从复制</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-06-20T01:42:59.000Z" title="发表于 2020-06-20 09:42:59">2020-06-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-04-06T07:36:20.784Z" title="更新于 2021-04-06 15:36:20">2021-04-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/redis/">redis</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>主从复制</h1>
+
+<h2>1.复制概述</h2>
+
+<p><img src= "/img/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.png" alt=""></p>
+<p>redis主从复制新旧版本过程图，如上所示<br/><br>旧版本的初始复制和断线后复制都是全量复制，上图的复制过程已经一目了然，在这里文字叙述下新版本的复制<br/><br>PSYNC命令触发的主节点响应有三种：</p>
+<ol>
+<li>+FULLRESYNC</li>
+<li>+CONTINUE</li>
+<li>-ERR</li>
+</ol>
+重点记录下+CONTINUE响应关键字,在了解之前首先需要了解几个概念<br/>
+<ul>
+<li><b>复制偏移量（offset）：</b><br/>
+主服务器向从服务器传送N个字节数据master_offset = master_offset+ N,从服务器接收N个字节数据slave_offset = slave_offset+N<br/>
+当master_offset = slave_offset是说明主从数据库状态一致
+</li>
+<li><b>复制积压缓冲区：</b><br/>
+由一个固定长度的FIFO队列组成，默认大小为1M；在命令传播阶段不止会将命令发送给从服务器，还会将写命令记录在复制积压缓冲区<br/>
+主服务器的复制积压缓冲区记录着最近传播的写命令，并且有每个字节的offset<br/>
+当接收客户端的PSYNC命令是会检查客户端带过来的复制偏移量是否在积压缓冲区中，如果在就是部分重同步否则就是全量重同步
+</li>
+<li>运行id</li>
+</ul>
+根据判断offset是否在复制积压缓冲区中就可以知道是全部还是部分重同步
+
+<h2>2.复制拓扑图</h2>
+
+<ol>
+<li>一主一从</li>
+<li>一主多从：可利用多个节点实施故障转移，适用于读多写少的情况；在写多的情况下会过度消耗网络带宽</li>
+<li>树状主从：从节点不但可以从主节点复制还可以从从节点复制，减轻主节点的压力</li>
+</ol>
+<h2>3.复制过程</h2>
+
+<ol>
+<li>保存主节点信息</li>
+<li>从节点通过每秒定时任务维护复制想过逻辑</li>
+<li>发送ping命令检测主从之间的网络套接字是否可用，当前主节点是否可接受处理命令</li>
+<li>权限验证</li>
+<li>同步数据（全量和增量）</li>
+<li>命令持续复制</li>
+</ol>
+<h1>高可用主从复制</h1>
+在了解高可用的主从复制之前我们先看看普通主从复制的缺点：<br/>
+
+<ol>
+<li>主从复制，若主节点出现问题，则不能提供服务，需要人工修改配置将从变主</li>
+<li>主从复制主节点的写能力单机，能力有限</li>
+<li>单机节点的存储能力也有限</li>
+</ol>
+<p>故障恢复：<br/><br>1.主节点故障，从节点执行 slaveof no one后变成新主节点；<br/><br>2.其它的节点成为新主节点的从节点，并从新节点复制数据；<br/><br>3.需要人工干预，无法实现高可用。<br/></p>
+<h2>1.哨兵内部数据结构</h2>
+通过redis-sentinel ./sentinel.conf 会初始化一个普通redis服务器并使用Sentinel专用代码，之后会初始化Sentinel状态，就是如下图所示的结构<br>
+具体字段含义自行查找
+
+<p><img src= "/img/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/struct.png" alt=""></p>
+<p>在上面初始化Sentinel的状态之后Sentinel会创建对主从服务器的监控（命令连接和订阅连接），如下图所示</p>
+<p><img src= "/img/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/high.png" alt=""></p>
+<h2>工作流程</h2>
+
+<ol>
+<li>主节点出现故障，主从失去连接复制失败</li>
+<li>哨兵节点，定期发现出现故障的主节点</li>
+<li>多个Sentinel节点对主节点故障达成一致，选出新的领导者负责故障转移</li>
+<li>完成故障转移，更新拓扑图</li>
+</ol>
+<h2>3.三个定时任务</h2>
+<h3>1.十秒一次发送INFO命令获取服务器信息，更新拓扑图</h3>
+一般监听从服务器节点信息变化或者新加入从服务器，只需要给主服务器发送INFO命令，在主服务器的回复中会携带其从节点信息
+<h3>2.两秒一次每个哨兵节点会向主从节点的指定频道上发送该哨兵节点对于主节点的判断以及当前哨兵节点的信息，用于更新Sentinel字典</h3>
+同时每个哨兵节点也会订阅该频道，来了解其它哨兵节点的信息及对主节点的判断，通过消息PUBLISH和SUBSCRIBE来完成的
+<h3>3.每秒一次Sentinel会向每个与自己创建命令连接的实例发送PING命令，判断是否是主观下线</h3>
+回复有+PONG、-LOADING、-MASTERDOWN,除了这几种其他的都是无效回复，如果在down-after-milliseconds配置时间内一直返回无效回复则会标记为无效节点
+<h2>4.故障转移</h2>
+在上面第三个定时任务，如果检测到主服务器是主观下线，这个时候当前Sentinel会向其他Sentinel发送<br/>
+SENTINEL is-master-down-by-addr <ip> <port> <current_rpoch> <runid> 命令，当其他Sentinel对当前命令回复Multi Bulk中down_state参数值为
+1时表示同意客观下线，当同意客观下线的Sentinel为配置的quorum时则将服务器判定为客观下线，并对主服务器开始执行故障转移<br/>
+<h3>步骤</h3>
+<h4>1.使用raft算法选举领头Sentinel</h4>
+<h4>2.选取新的主服务器</h4>
+a).从最近一直都有通信的从服务器中选取
+b).选取优先级最高的从服务器
+c).选取复制偏移量最大的从服务器
+<h4>3.让从服务器复制新主</h4>
+<h4>4.让已下线主服务变为新主的从服务器</h4></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">jiabin.wang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://dogyin.wang/2020/06/20/20200620-redis04/">http://dogyin.wang/2020/06/20/20200620-redis04/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://dogyin.wang" target="_blank">寅狗子</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/redis/">redis</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/06/22/20200622-algorithms-2/"><img class="prev-cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/algorithms.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">线性表算法练习</div></div></a></div><div class="next-post pull-right"><a href="/2020/06/08/20200608-redis03/"><img class="next-cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">redis过期键策略和持久化机制</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/05/09/20200509-redis01/" title="redis六种基本数据结构"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-05-09</div><div class="title">redis六种基本数据结构</div></div></a></div><div><a href="/2020/06/08/20200608-redis03/" title="redis过期键策略和持久化机制"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-06-08</div><div class="title">redis过期键策略和持久化机制</div></div></a></div><div><a href="/2020/05/30/20200530-redis02/" title="redis五种数据类型"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-05-30</div><div class="title">redis五种数据类型</div></div></a></div><div><a href="/2020/09/16/20200916-redis05/" title="redis小功能"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">redis小功能</div></div></a></div><div><a href="/2020/11/05/20201105-redisext01/" title="redis中的那些阻塞操作"><img class="cover" data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-11-05</div><div class="title">redis中的那些阻塞操作</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">jiabin.wang</div><div class="author-info__description">大米和你缺一不可</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/dogYin"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/dogYin" target="_blank" title=""><i class="fa fa-github"></i></a><a class="social-icon" href="mailto:jiabinwang1010@126.com" target="_blank" title=""><i class="fa fa-envelope"></i></a></div></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎指教</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">主从复制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">1.复制概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">2.复制拓扑图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">3.复制过程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">高可用主从复制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.1.</span> <span class="toc-text">1.哨兵内部数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.2.</span> <span class="toc-text">工作流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.3.</span> <span class="toc-text">3.三个定时任务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.3.1.</span> <span class="toc-text">1.十秒一次发送INFO命令获取服务器信息，更新拓扑图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.3.2.</span> <span class="toc-text">2.两秒一次每个哨兵节点会向主从节点的指定频道上发送该哨兵节点对于主节点的判断以及当前哨兵节点的信息，用于更新Sentinel字典</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.3.3.</span> <span class="toc-text">3.每秒一次Sentinel会向每个与自己创建命令连接的实例发送PING命令，判断是否是主观下线</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.4.</span> <span class="toc-text">4.故障转移</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.4.1.</span> <span class="toc-text">步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">2.4.1.1.</span> <span class="toc-text">1.使用raft算法选举领头Sentinel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">2.4.1.2.</span> <span class="toc-text">2.选取新的主服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">2.4.1.3.</span> <span class="toc-text">3.让从服务器复制新主</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">2.4.1.4.</span> <span class="toc-text">4.让已下线主服务变为新主的从服务器</span></a></li></ol></li></ol></li></ol></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试mac中安装hexo"/></a><div class="content"><a class="title" href="/2021/04/06/20210406-test/" title="测试mac中安装hexo">测试mac中安装hexo</a><time datetime="2021-04-06T08:01:56.000Z" title="发表于 2021-04-06 16:01:56">2021-04-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/xiong.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="分布式ID和编号该怎么做？"/></a><div class="content"><a class="title" href="/2021/03/10/20210310-systemdesign01/" title="分布式ID和编号该怎么做？">分布式ID和编号该怎么做？</a><time datetime="2021-03-10T13:50:27.000Z" title="发表于 2021-03-10 21:50:27">2021-03-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/mysqllogo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="mysql主从复制方案"/></a><div class="content"><a class="title" href="/2021/02/05/20210205-mysql-advance/" title="mysql主从复制方案">mysql主从复制方案</a><time datetime="2021-02-05T09:44:11.000Z" title="发表于 2021-02-05 17:44:11">2021-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/java.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="垃圾回收随笔"/></a><div class="content"><a class="title" href="/2020/12/30/20201230-jvm02/" title="垃圾回收随笔">垃圾回收随笔</a><time datetime="2020-12-30T08:12:09.000Z" title="发表于 2020-12-30 16:12:09">2020-12-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因"><img data-lazy-src="https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/tcp_bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Reactor模型出现的原因"/></a><div class="content"><a class="title" href="/2020/12/25/20201225-io/" title="Reactor模型出现的原因">Reactor模型出现的原因</a><time datetime="2020-12-25T06:09:29.000Z" title="发表于 2020-12-25 14:09:29">2020-12-25</time></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://cdn.jsdelivr.net/gh/dogYin/imgOSS/img/redis.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By jiabin.wang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi,Welcome to my <a href="https://dogyin.wang/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    let initData = {
+      el: '#vcomment',
+      appId: 'rjLDfYWwpeh7n3l46Fx64V39-9Nh9j0Va',
+      appKey: 'lWS3xE4gbPNjClMV5DoTXbVV',
+      placeholder: '若文章有误，麻烦大佬指教！！！',
+      avatar: 'monsterid',
+      meta: '昵称,联系方式,网站链接'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('昵称,联系方式'.split(','))
+    }
+    
+    if (false) {
+      const otherData = false
+      initData = Object.assign({}, initData, otherData)
+    }
+    
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.querySelector('#vcomment'),loadValine)
+  else setTimeout(() => loadValine(), 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script></div></body></html>
